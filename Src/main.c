@@ -339,11 +339,11 @@ void DisplayTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	    if((osMessageQueueGet (dataQueueHandle, &received_data, 0, osWaitForever)) == osOK)
-	    	{
-	    		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	    		printf("Temperature: %d Timestamp: %lu\n",received_data.nTemperature,received_data.ulTimestamp);
-	    	}
+	  if((osMessageQueueGet (dataQueueHandle, &received_data, 0, osWaitForever)) == osOK)
+	  {
+			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	    	printf("Temperature: %d Timestamp: %lu\n",received_data.nTemperature,received_data.ulTimestamp);
+	  }	
   }
   /* USER CODE END DisplayTask */
 }
