@@ -145,7 +145,7 @@ int main(void)
 
   /* Create the queue(s) */
   /* creation of dataQueue */
-  dataQueueHandle = osMessageQueueNew (16, sizeof(TEMPERATURE_DATA_t), &dataQueue_attributes);
+  dataQueueHandle = osMessageQueueNew (16, sizeof(TEMPERATURE_DATA_t*), &dataQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -311,16 +311,24 @@ void ReadTemperatureTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	int16_t nTemperature = 25;
-	TEMPERATURE_DATA_t read_data = {0};
+	TEMPERATURE_DATA_t *pread_data;
   /* Infinite loop */
   for(;;)
   {
-	  osSemaphoreAcquire (buttonSemaphoreHandle, osWaitForever);
 	  nTemperature++;
-	  read_data.nTemperature = nTemperature;
-	  read_data.ulTimestamp = osKernelGetTickCount();
-	  osMessageQueuePut (dataQueueHandle, &read_data, 0, osWaitForever);
-	  osDelay(1000);
+	  osSemaphoreAcquire (buttonSemaphoreHandle, osWaitForever);
+	  pread_data = pvPortMalloc(sizeof(TEMPERATURE_DATA_t));
+	  if(pread_data != NULL)
+	  {
+		  pread_data->nTemperature = nTemperature;
+		  pread_data->ulTimestamp = osKernelGetTickCount();
+		  osMessageQueuePut (dataQueueHandle, &pread_data, 0, osWaitForever);
+	  }
+	  else
+	  {
+		  printf("Memory allocation failed\n");
+	  }
+	  //osDelay(1000);
   }
   /* USER CODE END 5 */
 }
@@ -335,15 +343,17 @@ void ReadTemperatureTask(void *argument)
 void DisplayTask(void *argument)
 {
   /* USER CODE BEGIN DisplayTask */
-	TEMPERATURE_DATA_t received_data = {0};
+	TEMPERATURE_DATA_t *preceived_data;
   /* Infinite loop */
   for(;;)
   {
-	    if((osMessageQueueGet (dataQueueHandle, &received_data, 0, osWaitForever)) == osOK)
-	    	{
-	    		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	    		printf("Temperature: %d Timestamp: %lu\n",received_data.nTemperature,received_data.ulTimestamp);
-	    	}
+
+	  if((osMessageQueueGet (dataQueueHandle, &preceived_data, 0, osWaitForever)) == osOK)
+	  {
+		  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		  printf("Temperature: %d Timestamp: %lu\n",preceived_data->nTemperature,preceived_data->ulTimestamp);
+		  vPortFree(preceived_data);
+	  }
   }
   /* USER CODE END DisplayTask */
 }
