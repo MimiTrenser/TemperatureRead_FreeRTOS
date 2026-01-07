@@ -311,7 +311,7 @@ void ReadTemperatureTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	int16_t nTemperature = 25;
-	TEMPERATURE_DATA_t *pread_data;
+	TEMPERATURE_DATA_t *pread_data = NULL;
   /* Infinite loop */
   for(;;)
   {
@@ -343,7 +343,7 @@ void ReadTemperatureTask(void *argument)
 void DisplayTask(void *argument)
 {
   /* USER CODE BEGIN DisplayTask */
-	TEMPERATURE_DATA_t *preceived_data;
+	TEMPERATURE_DATA_t *preceived_data = NULL;
   /* Infinite loop */
   for(;;)
   {
