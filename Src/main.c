@@ -315,6 +315,7 @@ void ReadTemperatureTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	  osSemaphoreAcquire (buttonSemaphoreHandle, osWaitForever);
 	  nTemperature++;
 	  read_data.nTemperature = nTemperature;
 	  read_data.ulTimestamp = osKernelGetTickCount();
@@ -338,7 +339,6 @@ void DisplayTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	    osSemaphoreAcquire (buttonSemaphoreHandle, osWaitForever);
 	    if((osMessageQueueGet (dataQueueHandle, &received_data, 0, osWaitForever)) == osOK)
 	    	{
 	    		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
